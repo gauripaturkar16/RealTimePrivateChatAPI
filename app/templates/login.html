@@ -1,0 +1,48 @@
+<!-- chatapp/templates/login.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title> Login</title>
+    {% comment %} <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}"> {% endcomment %}
+</head>
+<style>
+    body{
+        background-color: #a9dbe2;
+        content: "";
+        flex: 1;
+        height: 1px;
+       
+        
+      } 
+     div {
+        margin-top: 80px;
+        border-color: black;
+        border-style:groove;
+        border-width: 5px;
+        border-radius: 10px;
+        padding: 20px;
+        background-color: #e7cdcd;
+    
+      }
+      h2{
+    
+          font-family:serif;
+    
+       }
+    
+</style>
+<body>
+    <center>
+    <div class="login-container">
+        <h2>Login Here</h2>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Login</button>
+        </form>
+    </div>
+    </center>
+
+    
+</body>
+</html>
