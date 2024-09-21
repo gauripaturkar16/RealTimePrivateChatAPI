@@ -62,6 +62,17 @@
             padding: 5px 10px;
             cursor: pointer;
         } 
+        .chat-card  {
+            background-color: #e0e0e0;
+            color: #000;
+            max-width: 60%;
+            padding: 10px;
+            border-radius: 10px;
+            margin: 10px;
+            clear: both;
+            word-wrap: break-word;
+            float: right;
+        }
         .otherchat {
             background-color: #007bff;
             color: #fff;
@@ -74,17 +85,8 @@
             float: left;
         }
 
-        .chat-card  {
-            background-color: #e0e0e0;
-            color: #000;
-            max-width: 60%;
-            padding: 10px;
-            border-radius: 10px;
-            margin: 10px;
-            clear: both;
-            word-wrap: break-word;
-            float: right;
-        }
+        
+        
     </style>
 </head>
 <body>
@@ -106,6 +108,24 @@
                     </div>
                 </div>
                 <div class="chat-messages">
+                    {% if chats %}
+                        {% for chat in chats %}
+                            {% if chat.user == request.user %}
+                                <div class="chat-card">
+                                    <p>{{ chat.msg }}</p>
+                                </div>
+                            {% else %}
+                                <div class="otherchat">
+                                    <p>{{ chat.msg }}</p>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        <p>No messages to display.</p>
+                    {% endif %}
+                </div>                
+                
+                {% comment %} <div class="chat-messages">
                     {% for key, chat in chats.items %}
                         {% if chat.user == 'me' %}
                             <div class="chat-card">
@@ -117,7 +137,7 @@
                             </div>
                         {% endif %}
                     {% endfor %}
-                </div>
+                </div> {% endcomment %}
                 <div>
                     <textarea class="message-input" cols="100" rows="3" placeholder="Type your message..."></textarea>
                     <button class="send-button">Send</button>

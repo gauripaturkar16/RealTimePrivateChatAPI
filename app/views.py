@@ -45,12 +45,34 @@ def chat_home(request):
 def index(request):
     frnd_name = request.GET.get('user', None)
     mychats_data = None
+    messages = None
     if frnd_name:
         frnd_ = User.objects.filter(username=frnd_name).first()
-        if frnd_ and Mychats.objects.filter(me=request.user, frnd=frnd_).exists():
-            mychats_data = Message.objects.filter(chat__me=request.user, chat__frnd=frnd_).order_by('timestamp')
+        if frnd_:
+            # Get the chat between the current user and the selected friend
+            mychats_data = Mychats.objects.filter(me=request.user, frnd=frnd_).first()
+            if not mychats_data:
+                mychats_data = Mychats.objects.filter(me=frnd_, frnd=request.user).first()
+            # Fetch all the messages in that chat if the chat exists
+            if mychats_data:
+                messages = Message.objects.filter(chat=mychats_data).order_by('timestamp')
+
     frnds = User.objects.exclude(pk=request.user.id)
-    return render(request, 'index.html', {'my': mychats_data, 'chats': mychats_data, 'frnds': frnds})
+    return render(request, 'index.html', {
+        'my': mychats_data, 
+        'chats': messages,  # Pass the messages to the template
+        'frnds': frnds
+    })
+# @login_required
+# def index(request):
+#     frnd_name = request.GET.get('user', None)
+#     mychats_data = None
+#     if frnd_name:
+#         frnd_ = User.objects.filter(username=frnd_name).first()
+#         if frnd_ and Mychats.objects.filter(me=request.user, frnd=frnd_).exists():
+#             mychats_data = Message.objects.filter(chat__me=request.user, chat__frnd=frnd_).order_by('timestamp')
+#     frnds = User.objects.exclude(pk=request.user.id)
+#     return render(request, 'index.html', {'my': mychats_data, 'chats': mychats_data, 'frnds': frnds})
 
 @login_required
 def logout_view(request):

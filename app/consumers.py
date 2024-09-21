@@ -91,30 +91,50 @@ class MychatApp(AsyncWebsocketConsumer):
     @database_sync_to_async   
     def save_chat(self, text_data):
         frnd = User.objects.get(username=text_data['user'])
-        mychats, created = Mychats.objects.get_or_create(me=self.scope['user'], frnd=frnd)
+        
+        # Check if a chat exists, regardless of who initiated it
+        mychats = Mychats.objects.filter(me=self.scope['user'], frnd=frnd).first()
+        if not mychats:
+            mychats = Mychats.objects.filter(me=frnd, frnd=self.scope['user']).first()
 
+        if not mychats:
+            # Create the chat if it doesn't exist
+            mychats = Mychats.objects.create(me=self.scope['user'], frnd=frnd)
+        
         # Save the message to the Message model
         Message.objects.create(
             chat=mychats,
             user=self.scope['user'],
             msg=text_data['msg']
         )
+
+    # @database_sync_to_async   
+    # def save_chat(self, text_data):
+    #     frnd = User.objects.get(username=text_data['user'])
+    #     mychats, created = Mychats.objects.get_or_create(me=self.scope['user'], frnd=frnd)
+
+    #     # Save the message to the Message model
+    #     Message.objects.create(
+    #         chat=mychats,
+    #         user=self.scope['user'],
+    #         msg=text_data['msg']
+    #     )
         
-        # Save the message in the friend's chat session as well
-        mychats, created = Mychats.objects.get_or_create(me=frnd, frnd=self.scope['user'])
-        Message.objects.create(
-            chat=mychats,
-            user=frnd,
-            msg=text_data['msg']
-        )
+    #     # Save the message in the friend's chat session as well
+    #     mychats, created = Mychats.objects.get_or_create(me=frnd, frnd=self.scope['user'])
+    #     Message.objects.create(
+    #         chat=mychats,
+    #         user=frnd,
+    #         msg=text_data['msg']
+    #     )
 
-    async def send_videonofication(self,event):
-        await self.send(event['msg'])
+    # async def send_videonofication(self,event):
+    #     await self.send(event['msg'])
 
-    async def send_msg(self, event):
-        print(event['msg'])
-        await self.send(event['msg'])
+    # async def send_msg(self, event):
+    #     print(event['msg'])
+    #     await self.send(event['msg'])
 
-    async def chat_message(self, event):
-        print(event['message'])
-        await self.send(json.dumps("Total Online :- " + str(event['message'])))
+    # async def chat_message(self, event):
+    #     print(event['message'])
+    #     await self.send(json.dumps("Total Online :- " + str(event['message'])))
