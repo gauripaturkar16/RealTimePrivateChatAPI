@@ -1,61 +1,3 @@
-# import json
-# from channels.generic.websocket import AsyncWebsocketConsumer 
-# from asgiref.sync import async_to_sync
-# from app.models import Mychats
-# from django.contrib.auth.models import User
-# from time import sleep
-# import datetime
-# from channels.db import database_sync_to_async
-
-
-# class MychatApp(AsyncWebsocketConsumer):
-    
-#     async def connect(self):
-#         print(f"================== {self.scope['user']}")
-#         await self.accept() 
-#         await self.channel_layer.group_add(f"mychat_app_{self.scope['user']}", self.channel_name)
-         
-         
-#     async def disconnect(self, close_code): 
-#         pass
-#     # Receive message from WebSocket
-#     async def receive(self, text_data):
-#         text_data = json.loads(text_data)
-#         await self.channel_layer.group_send(
-#             f"mychat_app_{text_data['user']}",
-#             {
-#                 'type':'send.msg',
-#                 'msg':text_data['msg']
-#             }
-#             )
-#         await self.save_chat(text_data)
-
-#     @database_sync_to_async   
-#     def save_chat(self,text_data):
-#         frnd = User.objects.get(username=text_data['user'])
-#         mychats, created = Mychats.objects.get_or_create(me=self.scope['user'], frnd=frnd)
-#         # If the object was just created, initialize the 'chats' field as an empty dictionary
-#         if created:
-#             mychats.chats = {}
-#         mychats.chats[str(datetime.datetime.now())+"1"] = {'user': 'me', 'msg': text_data['msg']}
-#         mychats.save()
-#         mychats, created = Mychats.objects.get_or_create(me=frnd, frnd=self.scope['user'])
-#         # If the object was just created, initialize the 'chats' field as an empty dictionary
-#         if created:
-#             mychats.chats = {}
-#         mychats.chats[str(datetime.datetime.now())+"2"] = {'user': frnd.username, 'msg': text_data['msg']}
-#         mychats.save()
-#     async def send_videonofication(self,event):
-#         await  self.send(event['msg'])
-
-#     async def send_msg(self,event):
-#         print(event['msg'])
-#         await  self.send(event['msg'])
-#     async def chat_message(self, event):
-#         print(event['message'])
-#         await self.send(json.dumps("Total Online :- "+str(event['message'])))
-
-
 import datetime
 import json
 
@@ -70,71 +12,72 @@ from app.models import Message, Mychats
 class MychatApp(AsyncWebsocketConsumer):
     
     async def connect(self):
-        print(f"================== {self.scope['user']}")
-        await self.accept() 
-        await self.channel_layer.group_add(f"mychat_app_{self.scope['user']}", self.channel_name)
-         
-    async def disconnect(self, close_code): 
-        pass
+        user = self.scope['user']
+        
+        if user.is_authenticated:
+            # User is authenticated, proceed with connection
+            await self.accept()
+            await self.channel_layer.group_add(f"mychat_app_{user.username}", self.channel_name)
+            print(f"WebSocket connected: {user.username}")
+        else:
+            # User is not authenticated, reject the connection
+            await self.close()
+
+    async def disconnect(self, close_code):
+        user = self.scope['user']
+        if user.is_authenticated:
+            # Leave the group when the WebSocket disconnects
+            await self.channel_layer.group_discard(f"mychat_app_{user.username}", self.channel_name)
+            print(f"WebSocket disconnected: {user.username}")
 
     async def receive(self, text_data):
         text_data = json.loads(text_data)
+        user = self.scope['user']
+
+        if not user.is_authenticated:
+            return  # Ignore the message if the user is not authenticated
+
+        # Handle incoming message and send it to the appropriate group
         await self.channel_layer.group_send(
             f"mychat_app_{text_data['user']}",
             {
-                'type':'send.msg',
-                'msg':text_data['msg']
+                'type': 'send_message',
+                'msg': text_data['msg'],
+                'attachment': text_data.get('attachment')  # Handle optional attachment
             }
         )
+        
+        # Save chat data (message and optional attachment)
         await self.save_chat(text_data)
 
-    @database_sync_to_async   
+    @database_sync_to_async
     def save_chat(self, text_data):
-        frnd = User.objects.get(username=text_data['user'])
-        
-        # Check if a chat exists, regardless of who initiated it
-        mychats = Mychats.objects.filter(me=self.scope['user'], frnd=frnd).first()
-        if not mychats:
-            mychats = Mychats.objects.filter(me=frnd, frnd=self.scope['user']).first()
+        user = self.scope['user']
+        friend_username = text_data['user']
+        friend = User.objects.get(username=friend_username)
 
+        # Check if a chat exists, regardless of who initiated it
+        mychats = Mychats.objects.filter(me=user, frnd=friend).first() or Mychats.objects.filter(me=friend, frnd=user).first()
+
+        # If no chat exists, create one
         if not mychats:
-            # Create the chat if it doesn't exist
-            mychats = Mychats.objects.create(me=self.scope['user'], frnd=frnd)
-        
-        # Save the message to the Message model
+            mychats = Mychats.objects.create(me=user, frnd=friend)
+
+        # Save the message to the Message model, handling attachments if provided
         Message.objects.create(
             chat=mychats,
-            user=self.scope['user'],
-            msg=text_data['msg']
+            user=user,
+            msg=text_data['msg'],
+            attachment=text_data.get('attachment')  # Save attachment if it's part of the data
         )
 
-    # @database_sync_to_async   
-    # def save_chat(self, text_data):
-    #     frnd = User.objects.get(username=text_data['user'])
-    #     mychats, created = Mychats.objects.get_or_create(me=self.scope['user'], frnd=frnd)
+    async def send_message(self, event):
+        # Send the message to WebSocket
+        msg = event['msg']
+        attachment = event.get('attachment')
 
-    #     # Save the message to the Message model
-    #     Message.objects.create(
-    #         chat=mychats,
-    #         user=self.scope['user'],
-    #         msg=text_data['msg']
-    #     )
-        
-    #     # Save the message in the friend's chat session as well
-    #     mychats, created = Mychats.objects.get_or_create(me=frnd, frnd=self.scope['user'])
-    #     Message.objects.create(
-    #         chat=mychats,
-    #         user=frnd,
-    #         msg=text_data['msg']
-    #     )
-
-    # async def send_videonofication(self,event):
-    #     await self.send(event['msg'])
-
-    # async def send_msg(self, event):
-    #     print(event['msg'])
-    #     await self.send(event['msg'])
-
-    # async def chat_message(self, event):
-    #     print(event['message'])
-    #     await self.send(json.dumps("Total Online :- " + str(event['message'])))
+        # Send message data back to WebSocket
+        await self.send(text_data=json.dumps({
+            'msg': msg,
+            'attachment': attachment  # Include attachment in the WebSocket message if available
+        }))

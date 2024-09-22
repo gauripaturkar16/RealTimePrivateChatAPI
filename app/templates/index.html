@@ -1,12 +1,12 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Chat App with Sidebar</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
-    <style>
-        /* Styling for the red dot */
+ <!DOCTYPE html>
+ <html lang="en">
+ <head>
+     <meta charset="utf-8">
+     <meta name="viewport" content="width=device-width, initial-scale=1">
+     <title>Chat App with Sidebar</title>
+     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6oIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+     <style>
+         /* Styling for the red dot */
         .red-dot {
             width: 10px;
             height: 10px;
@@ -84,142 +84,194 @@
             word-wrap: break-word;
             float: left;
         }
-
-        
-        
-    </style>
-</head>
-<body>
-    <div class="main">
-        <div class="d-flex align-items-start chat-container">
-            <div class="sidebar">
-                <nav class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
-                    {% for frnd in frnds %}
-                    <a class="nav-link" href="/?user={{frnd.username}}" role="tab" aria-controls="v-pills-home" aria-selected="false">{{frnd.username}}</a>
-                    {% endfor %}
-                   </nav>
-            </div>
-            <div class="chat-content">
-                <div class="navbar bg-body-tertiary">
-                    <div class="container-fluid">
-                        <a class="navbar-brand" href="#">
-                            <h2 id="username">  <span class="red-dot"></span></h2>
-                        </a>
-                    </div>
-                </div>
-                <div class="chat-messages">
-                    {% if chats %}
-                        {% for chat in chats %}
-                            {% if chat.user == request.user %}
-                                <div class="chat-card">
-                                    <p>{{ chat.msg }}</p>
-                                </div>
-                            {% else %}
-                                <div class="otherchat">
-                                    <p>{{ chat.msg }}</p>
-                                </div>
-                            {% endif %}
-                        {% endfor %}
-                    {% else %}
-                        <p>No messages to display.</p>
-                    {% endif %}
-                </div>                
-                
-                {% comment %} <div class="chat-messages">
-                    {% for key, chat in chats.items %}
-                        {% if chat.user == 'me' %}
-                            <div class="chat-card">
-                                <p>{{chat.msg}}</p>
-                            </div>
-                        {% else %}
-                            <div class="otherchat">
-                                <p>{{chat.msg}}</p>
-                            </div>
-                        {% endif %}
-                    {% endfor %}
-                </div> {% endcomment %}
-                <div>
-                    <textarea class="message-input" cols="100" rows="3" placeholder="Type your message..."></textarea>
-                    <button class="send-button">Send</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    <script>
-            document.addEventListener("DOMContentLoaded", function () {
-            // Get the query parameter 'user' from the URL
-            const queryParams = new URLSearchParams(window.location.search);
-            const user = queryParams.get("user");
-
-            // Activate the tab based on the 'user' query parameter
-            const tab = document.querySelector(`[href="/?user=${user}"]`);
-            if (tab) {
-                tab.classList.add("active");
-                tab.setAttribute("aria-selected", "true");
-                document.getElementById('username').textContent = user
-            }
-            if (user === null) {
-                const chatContent = document.querySelector('.chat-content');
-                chatContent.style.display = 'none';
-            }
-            var sendButton = document.querySelector(".send-button");
-            var textarea = document.querySelector(".message-input");
-            var chatMessages = document.querySelector(".chat-messages");
-            var ws;
-
-            // Function to append a received message to chat messages
-            function appendMessage(user, message) {
-                const chatCard = document.createElement("div");
-                chatCard.classList.add(user === "me" ? "chat-card" : "otherchat");
-                chatCard.innerHTML = `<p>${message}</p>`;
-                chatMessages.appendChild(chatCard);
-            }
-
-            // Function to send a message via WebSocket
-            function sendMessage(message) {
-                if (ws && ws.readyState === WebSocket.OPEN) {
-                    ws.send(JSON.stringify({ user: user, msg: message }));
-                }
-            }
-
-            // Connect to the WebSocket server
-            ws = new WebSocket("ws://127.0.0.1:8000/ws/wsc/");
-
-            // Handle WebSocket connection open
-            ws.addEventListener("open", function (event) {
-                console.log("WebSocket connection opened.");
-            });
-
-            // Handle WebSocket message received
-            ws.addEventListener("message", function (event) {
-                console.log(event.data) 
-                appendMessage("frnd",event.data);
-            });
-
-            // Handle WebSocket close
-            ws.addEventListener("close", function (event) {
-                console.log("WebSocket connection closed.");
-            });
-
-            // Handle Send button click
-            sendButton.addEventListener('click', function () {
-                const messageText = textarea.value;
-
-                if (messageText.trim() !== "") {
-                    sendMessage(messageText);
-
-                    // Append the sent message to chat messages
-                    appendMessage("me", messageText);
-
-                    // Clear the textarea
-                    textarea.value = "";
-                }
-            });
-        });
-
-
-    </script>
-    <a href="{% url 'logout' %}" class="btn btn-outline-info btn-sm ">Logout</a>
-</body>
-</html>
-
+     </style>
+ </head>
+ <body>
+     <div class="main">
+         <div class="d-flex align-items-start chat-container">
+             <div class="sidebar">
+                 <nav class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+                     {% for frnd in frnds %}
+                     <a class="nav-link" href="/?user={{frnd.username}}" role="tab" aria-controls="v-pills-home" aria-selected="false">{{frnd.username}}</a>
+                     {% endfor %}
+                 </nav>
+             </div>
+             <div class="chat-content">
+                 <div class="navbar bg-body-tertiary">
+                     <div class="container-fluid">
+                         <a class="navbar-brand" href="#">
+                             <h2 id="username">  <span class="red-dot"></span></h2>
+                         </a>
+                     </div>
+                 </div>
+                 <div class="chat-messages">
+                     {% if chats %}
+                         {% for chat in chats %}
+                             {% if chat.user == request.user %}
+                                 <div class="chat-card">
+                                     <p>{{ chat.msg }}</p>
+                                     {% if chat.attachment %}
+                                     {% with chat.attachment.url|lower as attachment_url %}
+                                                {% if attachment_url|slice:"-4:" == ".jpg" or attachment_url|slice:"-4:" == ".png" or attachment_url|slice:"-4:" == ".gif" %}
+                                                    <!-- Display image inline -->
+                                                    <img src="{{ chat.attachment.url }}" alt="Image" style="max-width: 100%; height: auto;" />
+                                                {% elif attachment_url|slice:"-4:" == ".pdf" %}
+                                                    <!-- Display PDF inline using iframe -->
+                                                    <iframe src="{{ chat.attachment.url }}" width="100%" height="600px"></iframe>
+                                                {% elif attachment_url|slice:"-4:" == ".txt" %}
+                                                    <!-- Display text file content -->
+                                                    <iframe src="{{ chat.attachment.url }}" width="100%" height="300px"></iframe>
+                                                {% else %}
+                                                    <!-- For other file types, keep the download link -->
+                                                    <a href="{{ chat.attachment.url }}" target="_blank">Download Attachment</a>
+                                                {% endif %}
+                                    {% endwith %}
+                                     {% comment %} <a href="{{ chat.attachment.url }}" target="_blank">View Attachment</a> {% endcomment %}
+                                     {% endif %}
+                                 </div>
+                             {% else %}
+                                 <div class="otherchat">
+                                     <p>{{ chat.msg }}</p>
+                                 </div>
+                             {% endif %}
+                         {% endfor %}
+                     {% else %}
+                         <p>No messages to display.</p>
+                     {% endif %}
+                 </div> 
+                 <textarea class="message-input" placeholder="Type your message..."></textarea>
+                 <input type="file" class="attachment-input" />
+                 <button class="send-button">Send</button> 
+             </div>
+         </div>
+     </div>
+     <a href="{% url 'logout' %}" class="btn btn-outline-info btn-sm">Logout</a>
+ 
+     <script>
+         document.addEventListener("DOMContentLoaded", function () {
+             // Query elements after the DOM is loaded
+             const sendButton = document.querySelector(".send-button");
+             const textarea = document.querySelector(".message-input");
+             const attachmentInput = document.querySelector(".attachment-input");
+             const chatMessages = document.querySelector(".chat-messages");
+ 
+             // Check if the elements exist before proceeding
+             if (!sendButton || !textarea || !attachmentInput || !chatMessages) {
+                 console.error("Required elements are missing from the DOM.");
+                 return;  // Exit if any required elements are missing
+             }
+ 
+             // Helper function to get CSRF token
+             function getCookie(name) {
+                 let cookieValue = null;
+                 if (document.cookie && document.cookie !== '') {
+                     const cookies = document.cookie.split(';');
+                     for (let i = 0; i < cookies.length; i++) {
+                         const cookie = cookies[i].trim();
+                         if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                             cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                             break;
+                         }
+                     }
+                 }
+                 return cookieValue;
+             }
+ 
+             const csrftoken = getCookie('csrftoken');
+             var ws;
+ 
+             function appendMessage(user, message, attachment = null) {
+                 const chatCard = document.createElement("div");
+                 chatCard.classList.add(user === "me" ? "chat-card" : "otherchat");
+                 chatCard.innerHTML = `<p>${message}</p>`;
+ 
+                 if (attachment) {
+                     const attachmentLink = document.createElement('a');
+                     attachmentLink.href = attachment;
+                     attachmentLink.textContent = "View Attachment";
+                     attachmentLink.target = "_blank";
+                     chatCard.appendChild(attachmentLink);
+                 }
+ 
+                 chatMessages.appendChild(chatCard);
+             }
+ 
+             function sendMessage(message, attachmentName = null) {
+                 if (ws && ws.readyState === WebSocket.OPEN) {
+                     ws.send(JSON.stringify({
+                         user: user,
+                         msg: message,
+                         attachment: attachmentName ? `/media/${attachmentName}` : null
+                     }));
+                 }
+             }
+ 
+             // Get the user from the URL query parameters
+             const queryParams = new URLSearchParams(window.location.search);
+             const user = queryParams.get("user");
+ 
+             if (user) {
+                 // Connect to WebSocket if user exists
+                 ws = new WebSocket("ws://127.0.0.1:8000/ws/wsc/");
+ 
+                 ws.addEventListener("open", function () {
+                     console.log("WebSocket connection opened.");
+                 });
+ 
+                 ws.addEventListener("message", function (event) {
+                     const data = JSON.parse(event.data);
+                     appendMessage("frnd", data.msg, data.attachment ? `/media/${data.attachment}` : null);
+                 });
+ 
+                 ws.addEventListener("close", function () {
+                     console.log("WebSocket connection closed.");
+                 });
+ 
+                 // Send button event listener
+                 sendButton.addEventListener('click', function () {
+                     const messageText = textarea.value;
+                     const attachmentFile = attachmentInput.files[0];
+ 
+                     if (messageText.trim() !== "" || attachmentFile) {
+                         if (attachmentFile) {
+                             const formData = new FormData();
+                             formData.append('attachment', attachmentFile);
+                             
+ 
+                             fetch('/upload/', {
+                                 method: 'POST',
+                                 body: formData,
+                                 headers: { 'X-CSRFToken': csrftoken }
+                             })
+                             .then(response => {
+                                 if (!response.ok) {
+                                     throw new Error('Network response was not ok');
+                                 }
+                                 return response.json();
+                             })
+                             .then(data => {
+                                 const attachmentName = data.attachment;
+                                 sendMessage(messageText, attachmentName);
+                                 appendMessage("me", messageText, `/media/${attachmentName}`);
+ 
+                                 textarea.value = "";
+                                 attachmentInput.value = null;
+                             })
+                             .catch(error => {
+                                 console.error('Error uploading file:', error);
+                             });
+                         } else {
+                             sendMessage(messageText);
+                             appendMessage("me", messageText);
+                             textarea.value = "";
+                         }
+                     }
+                 });
+             } else {
+                 console.error("User query parameter is missing.");
+             }
+         });
+     </script>
+ </body>
+ </html>
+ 

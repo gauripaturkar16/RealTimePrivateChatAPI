@@ -1,0 +1,14 @@
+TASK 1;
+1. Favourite City API (events/cities/favourite)
+2. All Cities API (events/ci4. 
+
+TASK 2 ;
+
+3.Pincode serviceable API (/pincode-serviceable) validate the data coming from user
+
+4. Events Listing (account/events) only specific details are shown check figma for specific details
+6. Event Details (account/events/event_id) all details should be shown
+7. Event Update (account/events/update/event_id)ties/all) (Sort by Name)
+
+TASK 3 ;
+
