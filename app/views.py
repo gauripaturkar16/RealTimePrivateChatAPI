@@ -37,7 +37,18 @@ from django.views.decorators.csrf import csrf_exempt
 
 from app.models import Message, Mychats
 
-# Create your views here.
+from .form import MessageForm
+
+
+def send_message(request):
+    if request.method == 'POST':
+        form = MessageForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()  # This will save text and/or audio
+            return JsonResponse({'status': 'Message sent successfully'})
+    else:
+        form = MessageForm()
+    return render(request, 'chat/send_message.html', {'form': form})
 
 @login_required
 def chat_home(request):
@@ -72,8 +83,9 @@ def send_message(request):
     if request.method == 'POST':
         message_text = request.POST.get('message')
         attachment = request.FILES.get('attachment')
-
+        frnd_name = request.POST.get('frnd')  # Make sure to send the friend's username with the request
         # Handle the file upload
+       
         if attachment:
             fs = FileSystemStorage()
             filename = fs.save(attachment.name, attachment)
@@ -82,7 +94,7 @@ def send_message(request):
             file_url = None
 
         # Create your Message object
-        mychats_data = Mychats.objects.filter(me=request.user, frnd=frnd_).first() or Mychats.objects.filter(me=frnd_, frnd=request.user).first()
+        mychats_data = Mychats.objects.filter(me=request.user, frnd=frnd_name).first() or Mychats.objects.filter(me=frnd_name, frnd=request.user).first()
 
         message = Message.objects.create(
             chat=mychats_data,
@@ -92,11 +104,6 @@ def send_message(request):
         )
 
         return JsonResponse({'status': 'success', 'file_url': file_url})
-
-import os
-
-from django.conf import settings
-
 
 def upload_attachment(request):
     if request.method == 'POST' and request.FILES.get('attachment'):

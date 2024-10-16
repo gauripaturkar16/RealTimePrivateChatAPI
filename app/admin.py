@@ -22,4 +22,4 @@ class MychatAdmin(admin.ModelAdmin):
 
 @admin.register(Message)
 class MessageAdmin(admin.ModelAdmin):
-    list_display = ('id', 'chat', 'user', 'msg', 'timestamp')
+    list_display = ('id', 'chat', 'user', 'msg')
