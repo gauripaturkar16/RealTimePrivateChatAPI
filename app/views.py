@@ -105,18 +105,28 @@ def send_message(request):
 
         return JsonResponse({'status': 'success', 'file_url': file_url})
 
-def upload_attachment(request):
+# def upload_attachment(request):
+#     if request.method == 'POST' and request.FILES.get('attachment'):
+#         file = request.FILES['attachment']
+#         file_path = os.path.join(settings.MEDIA_ROOT, file.name)
+
+#         with open(file_path, 'wb+') as destination:
+#             for chunk in file.chunks():
+#                 destination.write(chunk)
+
+#         return JsonResponse({'attachment': file.name})
+
+#     return JsonResponse({'error': 'No attachment uploaded'}, status=400)
+
+@csrf_exempt 
+def upload_file(request):
     if request.method == 'POST' and request.FILES.get('attachment'):
         file = request.FILES['attachment']
-        file_path = os.path.join(settings.MEDIA_ROOT, file.name)
-
-        with open(file_path, 'wb+') as destination:
-            for chunk in file.chunks():
-                destination.write(chunk)
-
-        return JsonResponse({'attachment': file.name})
-
-    return JsonResponse({'error': 'No attachment uploaded'}, status=400)
+        filename = default_storage.save(file.name, file)
+        file_url = default_storage.url(filename)  # Get the URL of the saved file
+        print("File saved at:", file_url)  # Debugging line
+        return JsonResponse({'attachment': file_url})
+    return JsonResponse({'error': 'File upload failed'}, status=400)
 
 import os
 

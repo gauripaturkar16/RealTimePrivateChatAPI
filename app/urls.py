@@ -10,6 +10,6 @@ urlpatterns = [
     path('login/', auth_views.LoginView.as_view(template_name='login.html', authentication_form=ChatLoginForm), name='login'),
     path('index/', views.index, name='index'),
     path('logout/',views.logout_view,name='logout'),
-    path('upload/', upload_file, name='upload_file'),
+    path('upload_file/', upload_file, name='upload_file'),
 
 ]
