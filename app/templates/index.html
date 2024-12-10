@@ -163,18 +163,23 @@
             word-wrap: break-word;
             float: left;
         }
-    </style>
+          </style>
+        
 </head>
 <body>
     <div class="main">
         <h2 class="head">WeChat</h2>
         <div class="d-flex align-items-start chat-container">
             <div class="sidebar">
+            <ul>
                 <nav class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
                     {% for frnd in frnds %}
-                    <a class="nav-link" href="/?user={{frnd.username}}" role="tab" aria-controls="v-pills-home" aria-selected="false">{{frnd.username}}</a>
+                    <li><h4>
+                    <a class="nav-link" href="/?user={{frnd.username}}" role="tab" aria-controls="v-pills-home" aria-selected="false" aria-setsize="20px">{{frnd.username}}</a>
+                </h4></li>
                     {% endfor %}
                 </nav>
+            </ul>
             </div>
             <div class="chat-content">
                 <div class="navbar bg-body-tertiary">
