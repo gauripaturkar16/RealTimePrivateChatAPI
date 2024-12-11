@@ -251,6 +251,16 @@
             </div>
         </div>
     </div>
+    <div class="user-profile">
+        <h3>{{ user.username }}'s Profile</h3>
+        {% if user.userprofile.profile_picture %}
+            <img src="{{ user.userprofile.profile_picture.url }}" alt="Profile Picture" width="50" height="50">
+        {% else %}
+            <p>No profile picture</p>
+        {% endif %}
+        <p>Bio: {{ user.userprofile.bio }}</p>
+        <p>Location: {{ user.userprofile.location }}</p>
+    </div>
     <a href="{% url 'logout' %}" class="btn btn-outline-info btn-sm">Logout</a>
     
     <script>

@@ -1,31 +1,3 @@
-# from django.contrib.auth import logout
-# from django.contrib.auth.decorators import login_required
-# from django.contrib.auth.models import User
-# from django.shortcuts import redirect, render
-
-# from app.models import Mychats
-
-# # Create your views here.
-
-# @login_required
-# def chat_home(request):
-#     return render(request, 'index.html')
-
-# @login_required
-# def index(request):
-#     frnd_name = request.GET.get('user',None)
-#     mychats_data = None
-#     if frnd_name:
-#         if User.objects.filter(username=frnd_name).exists() and Mychats.objects.filter(me=request.user,frnd=User.objects.get(username=frnd_name)).exists():
-#             frnd_ = User.objects.get(username=frnd_name)
-#             mychats_data = Mychats.objects.get(me=request.user,frnd=frnd_).chats
-#     frnds = User.objects.exclude(pk=request.user.id)
-#     return render(request,'index.html',{'my':mychats_data,'chats': mychats_data,'frnds':frnds})
-
-# @login_required
-# def logout_view(request):
-#     logout(request)
-#     return redirect('login')
 
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
@@ -37,7 +9,24 @@ from django.views.decorators.csrf import csrf_exempt
 
 from app.models import Message, Mychats
 
-from .form import MessageForm
+from .form import MessageForm, UserProfileForm
+from .models import UProfile
+
+
+@login_required
+def profile_view(request):
+    # Get or create the user profile
+    user_profile, created = UProfile.objects.get_or_create(user=request.user)
+    
+    if request.method == "POST":
+        form = UserProfileForm(request.POST, request.FILES, instance=user_profile)
+        if form.is_valid():
+            form.save()
+            return redirect('profile')  # Redirect to the profile page after saving
+    else:
+        form = UserProfileForm(instance=user_profile)
+
+    return render(request, 'profile.html', {'form': form, 'user_profile': user_profile})
 
 
 def send_message(request):
@@ -145,6 +134,34 @@ def upload_file(request):
         return JsonResponse({'attachment': filename})
     return JsonResponse({'error': 'File upload failed'}, status=400)
 
+# def register_view(request):
+#     return render(request, 'register.html')
+
+# from django.conf import settings
+# from django.shortcuts import redirect
+
+
+# def some_view(request):
+#     return redirect(settings.REGISTER_URL)
+
+from django.contrib import messages
+from django.shortcuts import redirect, render
+
+from .form import RegisterForm
+
+
+def register_view(request):
+    if request.method == 'POST':
+        form = RegisterForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Account created successfully!')
+            return redirect('login')  # Replace 'login' with your login page URL name
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        form = RegisterForm()
+    return render(request, 'register.html', {'form': form})
 
 @login_required
 def logout_view(request):

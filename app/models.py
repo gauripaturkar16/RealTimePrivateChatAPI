@@ -1,7 +1,20 @@
 from django.contrib.auth.models import User
 from django.db import models
 
-# Create your models here.
+
+class UProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    profile_picture = models.ImageField(upload_to='profile_pics/', null=True, blank=True)
+    bio = models.TextField(null=True, blank=True)
+    location = models.CharField(max_length=255, null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.user.username}'s Profile"
+    
+    def get_profile_picture(self):
+        if self.profile_picture:
+            return self.profile_picture.url
+        return None
 
 class Mychats(models.Model):
     me = models.ForeignKey(to=User, on_delete=models.CASCADE, related_name='it_me')
