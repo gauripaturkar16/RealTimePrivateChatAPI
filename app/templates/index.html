@@ -79,16 +79,20 @@
         .chat-content {
             width: 80%;
             background-color: #fff;
-            padding: 10px;
+            padding: 5px;
         }
 
         /* Styling for the chat messages */
         .chat-messages {
-            height: 50vh;
+            height: 60vh;
             overflow-y: auto;
             border: 1px solid #ccc;
             border-radius: 5px;
             padding: 10px;
+            background-image: url('media/bgimg3.jpg'); /* Replace with your image path */
+    background-size: cover; /* Ensures the image covers the entire area */
+    background-position: center center; /* Center the image */
+    background-repeat: no-repeat;
         }
 
         /* Styling for the input section */
@@ -97,7 +101,7 @@
             align-items: center;
             margin-top: 10px;
         }
-
+        
         .message-input, .attachment-input {
             flex: 1;
             border: 1px solid #ccc;
@@ -251,6 +255,7 @@
             </div>
         </div>
     </div>
+    <a href="{% url 'logout' %}" class="btn btn-outline-info btn-sm">Logout</a>
     <div class="user-profile">
         <h3>{{ user.username }}'s Profile</h3>
         {% if user.userprofile.profile_picture %}
@@ -261,7 +266,6 @@
         <p>Bio: {{ user.userprofile.bio }}</p>
         <p>Location: {{ user.userprofile.location }}</p>
     </div>
-    <a href="{% url 'logout' %}" class="btn btn-outline-info btn-sm">Logout</a>
     
     <script>
         document.addEventListener("DOMContentLoaded", function () {
