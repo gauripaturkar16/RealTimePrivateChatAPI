@@ -49,15 +49,15 @@ def profile_view(request):
 
     return render(request, 'profile.html', {'form': form, 'user_profile': user_profile})
 
-def send_message(request):
-    if request.method == 'POST':
-        form = MessageForm(request.POST, request.FILES)
-        if form.is_valid():
-            form.save()  # This will save text and/or audio
-            return JsonResponse({'status': 'Message sent successfully'})
-    else:
-        form = MessageForm()
-    return render(request, 'chat/send_message.html', {'form': form})
+# def send_message(request):
+#     if request.method == 'POST':
+#         form = MessageForm(request.POST, request.FILES)
+#         if form.is_valid():
+#             form.save()  # This will save text and/or audio
+#             return JsonResponse({'status': 'Message sent successfully'})
+#     else:
+#         form = MessageForm()
+#     return render(request, 'chat/send_message.html', {'form': form})
 
 @login_required
 def chat_home(request):
@@ -87,32 +87,58 @@ def index(request):
     })
 
 
-@login_required
-def send_message(request):
-    if request.method == 'POST':
-        message_text = request.POST.get('message')
-        attachment = request.FILES.get('attachment')
-        frnd_name = request.POST.get('frnd')  # Make sure to send the friend's username with the request
-        # Handle the file upload
+# @login_required
+# def send_message(request):
+#     if request.method == 'POST':
+#         message_text = request.POST.get('message')
+#         attachment = request.FILES.get('attachment')
+#         frnd_name = request.POST.get('frnd')  # Make sure to send the friend's username with the request
+#         # Handle the file upload
        
+#         if attachment:
+#             fs = FileSystemStorage()
+#             filename = fs.save(attachment.name, attachment)
+#             file_url = fs.url(filename)
+#         else:
+#             file_url = None
+
+#         # Create your Message object
+#         mychats_data = Mychats.objects.filter(me=request.user, frnd=frnd_name).first() or Mychats.objects.filter(me=frnd_name, frnd=request.user).first()
+
+#         message = Message.objects.create(
+#             chat=mychats_data,
+#             user=request.user,
+#             text=message_text,
+#             attachment=file_url  # Assuming your Message model has an attachment field
+#         )
+
+#         return JsonResponse({'status': 'success', 'file_url': file_url})
+
+from django.core.files.base import ContentFile
+
+
+@csrf_exempt
+def send_message(request):
+    if request.method == "POST":
+        message_text = request.POST.get('message', '')
+        attachment = request.FILES.get('attachment', None)
+
+        attachment_name = None
         if attachment:
-            fs = FileSystemStorage()
-            filename = fs.save(attachment.name, attachment)
-            file_url = fs.url(filename)
-        else:
-            file_url = None
-
-        # Create your Message object
-        mychats_data = Mychats.objects.filter(me=request.user, frnd=frnd_name).first() or Mychats.objects.filter(me=frnd_name, frnd=request.user).first()
-
-        message = Message.objects.create(
-            chat=mychats_data,
-            user=request.user,
-            text=message_text,
-            attachment=file_url  # Assuming your Message model has an attachment field
-        )
-
-        return JsonResponse({'status': 'success', 'file_url': file_url})
+            # Save the attachment
+            attachment_name = default_storage.save(f'media/{attachment.name}', ContentFile(attachment.read()))
+        
+        # Store the message and attachment info (example)
+        # (You can replace this with your chat message saving logic)
+        
+        return JsonResponse({
+            "success": True,
+            "attachment_name": attachment_name,  # Provide the attachment name here
+        })
+    
+    return JsonResponse({
+        "error": "Invalid request method"
+    }, status=400)
 
 # def upload_attachment(request):
 #     if request.method == 'POST' and request.FILES.get('attachment'):

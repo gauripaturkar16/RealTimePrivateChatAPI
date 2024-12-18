@@ -26,7 +26,7 @@ class Mychats(models.Model):
 
 class Message(models.Model):
     chat = models.ForeignKey(to=Mychats, on_delete=models.CASCADE, related_name='messages')
-    
+    msg = models.TextField()  # Emojis are stored as part of the text
     # Make sender field nullable for the migration
     user = models.ForeignKey(to=User, on_delete=models.CASCADE, related_name='received_messages')
     sender = models.ForeignKey(to=User, on_delete=models.CASCADE, related_name='sent_messages', null=True)  # Allow null

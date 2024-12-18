@@ -165,6 +165,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # }
 import os
 
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
@@ -173,3 +174,4 @@ AWS_SECRET_ACCESS_KEY = 'your-secret-access-key'
 AWS_STORAGE_BUCKET_NAME = 'your-bucket-name'
 
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+APPEND_SLASH=False

@@ -16,5 +16,5 @@ urlpatterns = [
     path('groups/', views.group_list, name='group_list'),
     path('groups/create/', views.create_group, name='create_group'),
     path('groups/<int:group_id>/', views.group_chat, name='group_chat'),
-     path('send_message/', views.send_message, name='send_message'),
+     path('send_message', views.send_message, name='send_message'),
 ]
