@@ -1,17 +1,38 @@
 
+import os
+
+from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.core.files.storage import FileSystemStorage
+from django.core.files.storage import FileSystemStorage, default_storage
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from django.views.decorators.csrf import csrf_exempt
 
-from app.models import Message, Mychats
+from app.models import (Group, GroupMember, GroupMessage, Message, Mychats,
+                        UProfile)
 
-from .form import MessageForm, UserProfileForm
-from .models import UProfile
+from .form import MessageForm, RegisterForm, UserProfileForm
 
+
+@login_required
+def home_view(request):
+    # Fetch all friends (assuming frnds are all users except the logged-in user)
+    frnds = User.objects.exclude(id=request.user.id)
+    # Fetch chats for the current user
+    chats = Message.objects.filter(chat__me=request.user) | Message.objects.filter(chat__frnd=request.user)
+    
+    # Fetch or create the user's profile
+    user_profile, created = UProfile.objects.get_or_create(user=request.user)
+
+    return render(request, 'index.html', {
+        'user': request.user,
+        'frnds': frnds,
+        'chats': chats,
+        'user_profile': user_profile,
+    })
 
 @login_required
 def profile_view(request):
@@ -22,12 +43,11 @@ def profile_view(request):
         form = UserProfileForm(request.POST, request.FILES, instance=user_profile)
         if form.is_valid():
             form.save()
-            return redirect('profile')  # Redirect to the profile page after saving
+            return redirect('home')  # Redirect to home or another page after saving the profile
     else:
         form = UserProfileForm(instance=user_profile)
 
     return render(request, 'profile.html', {'form': form, 'user_profile': user_profile})
-
 
 def send_message(request):
     if request.method == 'POST':
@@ -117,14 +137,6 @@ def upload_file(request):
         return JsonResponse({'attachment': file_url})
     return JsonResponse({'error': 'File upload failed'}, status=400)
 
-import os
-
-from django.conf import settings
-from django.core.files.storage import default_storage
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-
-
 @csrf_exempt 
 def upload_file(request):
     if request.method == 'POST' and request.FILES.get('attachment'):
@@ -144,11 +156,6 @@ def upload_file(request):
 # def some_view(request):
 #     return redirect(settings.REGISTER_URL)
 
-from django.contrib import messages
-from django.shortcuts import redirect, render
-
-from .form import RegisterForm
-
 
 def register_view(request):
     if request.method == 'POST':
@@ -167,3 +174,73 @@ def register_view(request):
 def logout_view(request):
     logout(request)
     return redirect('login')
+
+# View to list all groups
+@login_required
+def group_list(request):
+    groups = Group.objects.all()
+    return render(request, 'group_list.html', {'groups': groups})
+
+# View to create a group
+@login_required
+def create_group(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        description = request.POST.get('description', '')
+        group = Group.objects.create(name=name, description=description)
+        # Add the user as a member of the new group
+        GroupMember.objects.create(group=group, user=request.user)
+        return redirect('group_list')
+    return render(request, 'create_group.html')
+
+# View to show the messages of a group and send new messages
+@login_required
+def group_chat(request, group_id):
+    group = Group.objects.get(id=group_id)
+    messages = GroupMessage.objects.filter(group=group).order_by('-timestamp')
+    
+    if request.method == 'POST':
+        content = request.POST.get('content')
+        GroupMessage.objects.create(group=group, sender=request.user, content=content)
+    
+    return render(request, 'group_chat.html', {'group': group, 'messages': messages})
+
+# View to list all groups
+@login_required
+def group_list(request):
+    groups = Group.objects.all()
+    return render(request, 'group_list.html', {'groups': groups})
+
+# View to create a group
+@login_required
+def create_group(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        description = request.POST.get('description', '')
+        member_ids = request.POST.getlist('members')  # Get the list of selected member IDs
+
+        group = Group.objects.create(name=name, description=description)
+        # Add the user as a member of the new group
+        GroupMember.objects.create(group=group, user=request.user)
+
+         # Add the selected users as members
+        for member_id in member_ids:
+            user = User.objects.get(id=member_id)
+            GroupMember.objects.create(group=group, user=user)
+
+        return redirect('group_list')
+     # Pass all users to the template for selection
+    users = User.objects.exclude(id=request.user.id)  # Exclude the current user
+    return render(request, 'create_group.html', {'users': users})
+
+# View to show the messages of a group and send new messages
+@login_required
+def group_chat(request, group_id):
+    group = Group.objects.get(id=group_id)
+    messages = GroupMessage.objects.filter(group=group).order_by('-timestamp')
+    
+    if request.method == 'POST':
+        content = request.POST.get('content')
+        GroupMessage.objects.create(group=group, sender=request.user, content=content)
+    
+    return render(request, 'group_chat.html', {'group': group, 'messages': messages})

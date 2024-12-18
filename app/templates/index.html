@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Chat App with Sidebar</title>
+    <title>Chat App</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6oIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
     <style>
         /* Styling for the red dot */
@@ -18,6 +18,10 @@
         /* Styling for the chat container */
         .chat-container {
             display: flex;
+            flex-direction: column;
+            align-items: flex-start;  /* Align all elements to the left */
+            margin-left: 20px;  /* Optional, add space from the left side */
+            padding: 20px;
         }
         .navbar-brand {
             text-decoration: none;
@@ -90,9 +94,9 @@
             border-radius: 5px;
             padding: 10px;
             background-image: url('media/bgimg3.jpg'); /* Replace with your image path */
-    background-size: cover; /* Ensures the image covers the entire area */
-    background-position: center center; /* Center the image */
-    background-repeat: no-repeat;
+            background-size: cover; /* Ensures the image covers the entire area */
+            background-position: center center; /* Center the image */
+            background-repeat: no-repeat;
         }
 
         /* Styling for the input section */
@@ -167,24 +171,230 @@
             word-wrap: break-word;
             float: left;
         }
-          </style>
+         ..sidebar  {
+            border: 1px solid #ccc;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        
+        {% comment %} .user-profile-container img {
+            border-radius: 50%;
+            margin-bottom: 10px;
+        } {% endcomment %}
+         
+
+          {% comment %} .sidebar {
+            width: 250px;
+            background-color: #f4f4f4;
+            padding: 10px;
+            display: inline-block;
+        } {% endcomment %}
+        
+        #profile-details {
+            margin-top: 20px;
+            background-color: #e9f5f9;
+            padding: 10px;
+        }
+        
+        #profile-toggle {
+            cursor: pointer;
+        } 
+        /* Basic styles for the sidebar */
+/* Basic styles for the navbar */
+.navbar {
+    background-color: #9bd7e3 ;
+    color: white;
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.navbar h2 {
+    margin: 0;
+    font-size: 24px;
+}
+
+/* Basic styles for the sidebar */
+.sidebar {
+    position: fixed;
+    left: -300px; /* Initially hide the sidebar off-screen */
+    top: 0;
+    width: 250px;
+    height: 100%;
+    background-color:#9bd7e3;
+    color: black;
+    transition: 0.3s;
+    padding-top: 20px;
+    z-index: 1000;
+}
+
+/* Sidebar content styles */
+.sidebar ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.sidebar ul li {
+    padding: 15px;
+    text-align: left;
+}
+
+.sidebar ul li a {
+    color: white;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+}
+
+.sidebar ul li a i {
+    margin-right: 10px; /* Space between icon and text */
+}
+
+/* Sidebar visible class */
+.sidebar.visible {
+    left: 0;
+}
+
+/* Close button (cross) in the sidebar */
+.close-btn {
+    background-color:  #9bd7e3;
+    color: white;
+    border: none;
+    font-size: 30px;
+    padding: 10px;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    cursor: pointer;
+}
+
+/* Style for the toggle button (hamburger icon) in navbar */
+.sidebar-toggle-btn {
+    background-color: #333;
+    color: white;
+    border: none;
+    padding: 10px;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+/* Add hover effect for both buttons */
+.sidebar-toggle-btn:hover, .close-btn:hover {
+    background-color: #444;
+}
+
+.section {
+    margin-bottom: 20px;
+}
+.section h2 {
+    margin-bottom: 10px;
+} 
+/* Group Chat Section */
+.groupchat-section {
+    margin-top: 5px;
+}
+/* Buttons */
+.groupchat-section .btn {
+    background-color: #9bd7e3;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 5px 10px;
+    font-size: 20px;
+    cursor: pointer;
+    margin-right: 5px;
+}
+
+.groupchat-section .btn:hover {
+    background-color: #0056b3;
+}
+
+</style>
         
 </head>
 <body>
     <div class="main">
-        <h2 class="head">WeChat</h2>
-        <div class="d-flex align-items-start chat-container">
-            <div class="sidebar">
+        <div class="navbar">
+            <h2>WeChat</h2>
+            <!-- Button to toggle the sidebar visibility (hamburger icon) -->
+            <button id="sidebar-toggle" class="sidebar-toggle-btn">☰</button>
+        </div>
+        
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <button id="close-sidebar" class="close-btn">&times;</button>
             <ul>
-                <nav class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
-                    {% for frnd in frnds %}
-                    <li><h4>
-                    <a class="nav-link" href="/?user={{frnd.username}}" role="tab" aria-controls="v-pills-home" aria-selected="false" aria-setsize="20px">{{frnd.username}}</a>
-                </h4></li>
-                    {% endfor %}
-                </nav>
+                <li>
+                    <a href="#" id="profile-toggle">
+                        {% comment %} <img src="{{ user_profile.profile_picture.url if user_profile.profile_picture else 'default-profile-image.png' }}" alt="Profile Picture" width="30" height="30"> {% endcomment %}
+                        <img src="{% if user_profile.profile_picture %}{{ user_profile.profile_picture.url }}{% else %}default-profile-image.png{% endif %}" alt="Profile Picture" width="30" height="30"> Profile
+                    </a>
+                </li>
+                <!-- Other sidebar items -->
+                <li><a href="#">Starred messages</a></li>
+                <li><a href="#">Archived chats</a></li>
+                <li><a href="#">Settings</a></li>
             </ul>
+        
+            <!-- Profile details (Initially hidden) -->
+            <div id="profile-details" style="display: none;">
+                <h3>{{ user.username }}'s Profile</h3>
+                <img src="{{ user_profile.profile_picture.url }}" alt="Profile Picture" width="100" height="100">
+                <p><strong>Bio:</strong> {{ user_profile.bio|default:"No bio available" }}</p>
+                <p><strong>Location:</strong> {{ user_profile.location|default:"No location available" }}</p>
+                <a href="{% url 'profile' %}" class="btn btn-outline-primary btn-sm">Edit Profile</a>
             </div>
+        </div>
+        
+        <!-- Include Font Awesome for the icons -->
+        <script src="https://kit.fontawesome.com/a076d05399.js"></script> <!-- Font Awesome icons -->
+        
+        <script>
+            // Toggle sidebar visibility with the hamburger button
+            const sidebarToggleBtn = document.getElementById('sidebar-toggle');
+            const sidebar = document.getElementById('sidebar');
+            const closeSidebarBtn = document.getElementById('close-sidebar');
+        
+            sidebarToggleBtn.addEventListener('click', () => {
+                sidebar.classList.toggle('visible');
+            });
+        
+            closeSidebarBtn.addEventListener('click', () => {
+                sidebar.classList.remove('visible');
+            });
+        </script>
+        
+        </div>
+        <h2>User List</h2>
+        <div class="d-flex align-items-start chat-container">
+                <ul>
+                    <nav class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+                        {% for frnd in frnds %}
+                        <li><h4>
+                        <a class="nav-link" href="/?user={{frnd.username}}" role="tab" aria-controls="v-pills-home" aria-selected="false" aria-setsize="20px">{{frnd.username}}</a>
+                    </h4></li>
+                        {% endfor %}
+                    </nav>
+                </ul>
+                </div>
+                    </div>
+                   <!-- GROUP CHAT CODE --> 
+                    <div class="groupchat-section">
+                        <h2>Group Chat</h2>
+                        <!-- Button to view group list -->
+                        <a href="{% url 'group_list' %}">
+                            <button class="btn">View Groups</button>
+                        </a><br>
+                        <br>
+                        <!-- Button to create a new group -->
+                        <a href="{% url 'create_group' %}">
+                            <button class="btn">Create a Group</button>
+                        </a>
+                    </div>
+                    <br>
+
             <div class="chat-content">
                 <div class="navbar bg-body-tertiary">
                     <div class="container-fluid">
@@ -256,18 +466,16 @@
         </div>
     </div>
     <a href="{% url 'logout' %}" class="btn btn-outline-info btn-sm">Logout</a>
-    <div class="user-profile">
-        <h3>{{ user.username }}'s Profile</h3>
-        {% if user.userprofile.profile_picture %}
-            <img src="{{ user.userprofile.profile_picture.url }}" alt="Profile Picture" width="50" height="50">
-        {% else %}
-            <p>No profile picture</p>
-        {% endif %}
-        <p>Bio: {{ user.userprofile.bio }}</p>
-        <p>Location: {{ user.userprofile.location }}</p>
-    </div>
-    
     <script>
+        document.getElementById('profile-toggle').addEventListener('click', function() {
+            var profileDetails = document.getElementById('profile-details');
+            if (profileDetails.style.display === 'none') {
+                profileDetails.style.display = 'block';
+            } else {
+                profileDetails.style.display = 'none';
+            }
+        });
+        
         document.addEventListener("DOMContentLoaded", function () {
             const sendButton = document.getElementById('send-button');
             const textarea = document.getElementById('chat-input');

@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ group.name }} - Group Chat</title>
+    <style>
+        /* Simple styles for chat */
+        #chat-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .messages {
+            max-height: 400px;
+            overflow-y: scroll;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .message {
+            padding: 5px;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .sender {
+            font-weight: bold;
+            margin-right: 5px;
+        }
+        .timestamp {
+            font-size: 0.8em;
+            color: #999;
+        }
+        textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button, a {
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .mic-button {
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .mic-button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div id="chat-container">
+        <h2>{{ group.name }} - Group Chat</h2>
+        <div id="messages" class="messages">
+            {% for message in messages %}
+                <div class="message">
+                    <span class="sender">{{ message.sender.username }}</span>
+                    <span class="timestamp">[{{ message.timestamp|date:"Y-m-d H:i" }}]</span>
+                    <div>{{ message.content }}</div>
+                    {% if message.attachment %}
+                        <a href="{{ message.attachment.url }}" target="_blank">View Attachment</a>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <textarea name="content" rows="3" placeholder="Type a message..." required></textarea>
+            <input type="file" id="attachment-input" name="attachment">
+            <button type="submit" id="send-button">Send</button>
+            <button type="button" id="mic-button" class="mic-button">🎙️</button>
+            <a href="{% url 'index' %}" class="btn btn-secondary">Back</a>
+        </form>
+    </div>
+    
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {if (!window.websocket || window.websocket.readyState === WebSocket.CLOSED) {
+            window.websocket = new WebSocket("ws://" + window.location.host + "/ws/group/{{ group.name }}/");
+        }
+            const messageInput = document.getElementById("message-input");
+            const attachmentInput = document.getElementById("attachment-input");
+            const sendButton = document.getElementById("send-button");
+            const micButton = document.getElementById("mic-button");
+            const chatMessages = document.getElementById("messages");
+            const csrfToken = "{{ csrf_token }}";
+
+            // Scroll to bottom on load
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            // Append new message to chat
+            function appendMessage(sender, content, attachment = null) {
+                const messageDiv = document.createElement("div");
+                messageDiv.className = "message";
+                const timestamp = new Date().toLocaleTimeString();
+
+                messageDiv.innerHTML = `
+                    <span class="sender">${sender}</span>
+                    <span class="timestamp">[${timestamp}]</span>
+                    <div>${content}</div>
+                `;
+                if (attachment) {
+                    const link = document.createElement("a");
+                    link.href = attachment;
+                    link.textContent = "View Attachment";
+                    link.target = "_blank";
+                    messageDiv.appendChild(link);
+                }
+                chatMessages.appendChild(messageDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+
+            // Send message via WebSocket
+            sendButton.addEventListener("click", () => {
+                const messageText = messageInput.value.trim();
+                const attachmentFile = attachmentInput.files[0];
+
+                if (!messageText && !attachmentFile) return;
+
+                if (attachmentFile) {
+                    const formData = new FormData();
+                    formData.append("attachment", attachmentFile);
+                    formData.append("csrfmiddlewaretoken", csrfToken);
+
+                    fetch("{% url 'send_message' %}", {
+                        method: "POST",
+                        body: formData,
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            ws.send(JSON.stringify({
+                                content: messageText,
+                                attachment: data.attachment_url,
+                            }));
+                            appendMessage("Me", messageText, data.attachment_url);
+                        } else {
+                            console.error("Attachment upload failed:", data.error);
+                        }
+                    });
+                } else {
+                    ws.send(JSON.stringify({ content: messageText }));
+                    appendMessage("Me", messageText);
+                }
+
+                messageInput.value = "";
+                attachmentInput.value = "";
+            });
+
+            // Receive message via WebSocket
+            ws.onmessage = function (event) {
+                const data = JSON.parse(event.data);
+                if (data.message) {
+                    appendMessage(data.sender, data.message);
+                }
+            };
+
+            ws.onclose = function () {
+                console.error("WebSocket closed unexpectedly");
+            };
+
+            // Speech-to-Text Functionality
+            micButton.addEventListener("click", () => {
+                const recognition = new webkitSpeechRecognition();
+                recognition.lang = "en-US";
+                recognition.interimResults = false;
+                recognition.maxAlternatives = 1;
+
+                recognition.start();
+
+                recognition.onresult = (event) => {
+                    messageInput.value = event.results[0][0].transcript;
+                };
+
+                recognition.onerror = (error) => {
+                    console.error("Speech recognition error:", error);
+                };
+            });
+        });
+    </script>
+
+
+</body>
+</html>

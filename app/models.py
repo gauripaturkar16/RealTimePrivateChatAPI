@@ -39,3 +39,31 @@ class Message(models.Model):
 
     def __str__(self):
         return f'Message from {self.sender.username} at {self.timestamp}'
+
+# Model to represent a Group
+class Group(models.Model):
+    name = models.CharField(max_length=255)
+    description = models.TextField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.name
+
+# Model to represent a Group Message
+class GroupMessage(models.Model):
+    group = models.ForeignKey(Group, related_name='messages', on_delete=models.CASCADE)
+    sender = models.ForeignKey(User, on_delete=models.CASCADE)
+    content = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.sender.username}: {self.content[:30]}..."
+
+# Model to represent a User's membership in a Group
+class GroupMember(models.Model):
+    group = models.ForeignKey(Group, related_name='members', on_delete=models.CASCADE)
+    user = models.ForeignKey(User, related_name='group_memberships', on_delete=models.CASCADE)
+    joined_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username} in {self.group.name}"

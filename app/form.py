@@ -5,6 +5,7 @@ from django.contrib.auth.forms import AuthenticationForm
 from .models import Message, UProfile
 
 
+# FOR PROFILE EDITING
 class UserProfileForm(forms.ModelForm):
     class Meta:
         model = UProfile

@@ -4,11 +4,106 @@ import json
 from asgiref.sync import async_to_sync
 from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
-from django.contrib.auth.models import User
+from django.contrib.auth.models import AnonymousUser, User
 
 from app.models import Message, Mychats
 
+from .models import Group, GroupMember, GroupMessage
 
+
+class GroupChatConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
+        group_name = self.scope['url_route']['kwargs']['group_name']
+        # Sanitize the group name by replacing spaces with underscores
+        group_name = group_name.replace(" ", "_")    
+        # Validate the group name
+        if not group_name.isalnum() and not all(c in 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_.' for c in group_name):
+                raise ValueError("Invalid group name.")
+        
+        # Fetch the group object using the group_name (sanitize it)
+        self.group = await self.get_group(group_name)
+
+        # Check if the user is a member of the group (you can skip this if it's not needed)
+        self.user = self.scope['user']
+        
+            # Join the group
+        await self.channel_layer.group_add(
+                group_name,
+                self.channel_name
+            )
+            # Accept the WebSocket connection
+        await self.accept()
+
+    async def send_system_message(self, message):
+            await self.send(text_data=json.dumps({
+                "system": message,
+                "timestamp": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            }))
+
+    async def disconnect(self, close_code):
+          # Get the group name again (for disconnection)
+        group_name = self.scope['url_route']['kwargs']['group_name']
+        # Leave the group when disconnected
+        await self.channel_layer.group_discard(
+            group_name,
+            self.channel_name
+        )
+    
+    async def receive(self, text_data):
+        try:
+            data = json.loads(text_data)
+            message = data['message']
+            if message and self.user:
+                # Save the message in the database
+                await self.save_message(self.group, self.user, message)
+
+                # Broadcast the message to the group
+                await self.channel_layer.group_send(
+                    self.group.name,
+                    {
+                        'type': 'chat_message',
+                        'message': message,
+                        'sender': self.user.username
+                    }
+                )
+            # Now handle the message
+        except KeyError:
+            # Handle the error, possibly send a warning to the client
+            await self.send(text_data=json.dumps({
+                'error': 'Message key is missing'
+            }))
+        except json.JSONDecodeError:
+            # Handle invalid JSON
+            await self.send(text_data=json.dumps({
+                'error': 'Invalid JSON format'
+            }))
+        
+    async def chat_message(self, event):
+        message = event['message']
+        sender = event['sender']
+        
+        # Send message to WebSocket
+        await self.send(text_data=json.dumps({
+            'message': message,
+            'sender': sender
+        }))
+    
+    @database_sync_to_async
+    def get_group(self, group_name):
+        try:
+            return Group.objects.get(name=group_name)
+        except Group.DoesNotExist:
+            return None
+
+    @database_sync_to_async
+    def save_message(self, group, sender, content):
+        return GroupMessage.objects.create(group=group, sender=sender, content=content)
+    
+    @database_sync_to_async
+    def is_user_member(self, group, user):
+        return GroupMember.objects.filter(group=group, user=user).exists()
+
+    
 class MychatApp(AsyncWebsocketConsumer):
     
     async def connect(self):
