@@ -1,6 +1,7 @@
 import datetime
 import json
 
+import emoji
 from asgiref.sync import async_to_sync
 from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
@@ -53,6 +54,9 @@ class GroupChatConsumer(AsyncWebsocketConsumer):
         try:
             data = json.loads(text_data)
             message = data['message']
+            # Convert emojis in the message using emoji library
+            message_with_emojis = emoji.emojize(message)
+
             if message and self.user:
                 # Save the message in the database
                 await self.save_message(self.group, self.user, message)
@@ -62,7 +66,8 @@ class GroupChatConsumer(AsyncWebsocketConsumer):
                     self.group.name,
                     {
                         'type': 'chat_message',
-                        'message': message,
+                        # 'message': message,
+                        'message': message_with_emojis,
                         'sender': self.user.username
                     }
                 )

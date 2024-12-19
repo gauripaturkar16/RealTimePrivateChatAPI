@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Chat App</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6oIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/@joeattardi/emoji-button@4.6.0/dist/index.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@joeattardi/emoji-button@4.6.0/dist/index.min.css">
 
     <style>
@@ -327,6 +326,10 @@
     outline: none;
   }
 </style>
+<!-- Add these to the <head> section of your template -->
+    <link rel="stylesheet" href="https://unpkg.com/emoji-mart/css/emoji-mart.css">
+    <script src="https://unpkg.com/emoji-mart"></script>
+    
 </head>
 <body>
     <div class="main">
@@ -474,24 +477,30 @@
                 </div> 
                 <!-- Input section for messages and attachments -->
                 <div class="input-section">
-                    <textarea class="message-input" placeholder="Type your message..." id="chat-input"></textarea>
                     <input type="file" class="attachment-input" />
-                    <button id="emoji-button">😀</button>
-                {% comment %} <script>
-                    document.addEventListener("DOMContentLoaded", () => {
-                        const picker = new EmojiButton();
-                        const button = document.querySelector('#emoji-button');
-                        const textarea = document.querySelector('#chat-input');
-                    
-                        picker.on('emoji', emoji => {
-                            textarea.value += emoji; // Append the emoji to the message input
+                  <!-- Emoji Picker button -->
+                    <button id="emoji-btn">😊</button>
+                    <div id="emoji-picker"></div>
+                    <textarea class="message-input" placeholder="Type your message..." id="chat-input"></textarea>
+                    <script src="https://cdn.jsdelivr.net/npm/emoji-mart@3.2.0/dist/index.js"></script>
+                    <script>
+                        // Initialize Emoji Mart picker
+                        const picker = new EmojiMart.Picker({
+                            onSelect: emoji => {
+                                document.getElementById('message-input').value += emoji.native; // Adds emoji to the text input
+                            }
                         });
-                    
-                        button.addEventListener('click', () => {
-                            picker.togglePicker(button); // Toggle the emoji picker on button click
+
+                        document.getElementById('emoji-picker').appendChild(picker);
+
+                        document.getElementById('emoji-btn').addEventListener('click', () => {
+                            const emojiPicker = document.getElementById('emoji-picker');
+                            emojiPicker.style.display = emojiPicker.style.display === 'none' ? 'block' : 'none';
                         });
-                    });
-                </script> {% endcomment %}
+                    </script>
+
+                
+
                     <button class="mic-button" id="mic-button">🎤</button>
                     <button class="send-button" id="send-button">Send</button>
                 </div>

@@ -1,6 +1,6 @@
-
 import os
 
+import emoji
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import logout
@@ -122,7 +122,11 @@ def send_message(request):
     if request.method == "POST":
         message_text = request.POST.get('message', '')
         attachment = request.FILES.get('attachment', None)
-
+        # Convert any emoji shortcodes in the message text to actual emojis
+        message_text_with_emoji = emoji.emojize(message_text)
+         # Save the message in the database (assuming your Message model has a text field)
+        message =Message.objects.create(user=request.user, text=message_text_with_emoji)
+          # Handle attachment saving if available
         attachment_name = None
         if attachment:
             # Save the attachment
@@ -133,6 +137,7 @@ def send_message(request):
         
         return JsonResponse({
             "success": True,
+            "message_text": message_text_with_emoji,  # Return the message with emojis
             "attachment_name": attachment_name,  # Provide the attachment name here
         })
     
@@ -140,6 +145,16 @@ def send_message(request):
         "error": "Invalid request method"
     }, status=400)
 
+def render_message(request, message_id):
+    try:
+        message = Message.objects.get(id=message_id)
+    except Message.DoesNotExist:
+        return JsonResponse({"error": "Message not found"}, status=404)
+
+    # Render emoji shortcode as real emoji
+    message_text = emoji.emojize(message.text)
+    
+    return render(request, 'index.html', {'message_text': message_text})
 # def upload_attachment(request):
 #     if request.method == 'POST' and request.FILES.get('attachment'):
 #         file = request.FILES['attachment']
@@ -171,17 +186,6 @@ def upload_file(request):
         file_url = default_storage.url(filename)  # Get the URL of the saved file
         return JsonResponse({'attachment': filename})
     return JsonResponse({'error': 'File upload failed'}, status=400)
-
-# def register_view(request):
-#     return render(request, 'register.html')
-
-# from django.conf import settings
-# from django.shortcuts import redirect
-
-
-# def some_view(request):
-#     return redirect(settings.REGISTER_URL)
-
 
 def register_view(request):
     if request.method == 'POST':
