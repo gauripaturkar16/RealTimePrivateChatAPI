@@ -109,7 +109,7 @@
             margin-top: 10px;
         }
         
-        .message-input, .attachment-input {
+        #message-input, .attachment-input {
             flex: 1;
             border: 1px solid #ccc;
             border-radius: 5px;
@@ -319,8 +319,14 @@
     font-size: 24px;
     cursor: pointer;
 }
+.trigger {
+    font-size: 24px;
+    cursor: pointer;
+    border: none;
+    background: none;
+    outline: none;
+  }
 </style>
-        
 </head>
 <body>
     <div class="main">
@@ -407,42 +413,71 @@
                 <div class="navbar bg-body-tertiary">
                     <div class="container-fluid">
                         <a class="navbar-brand" href="#">
-                            <h2 id="chat-with-user">Chat with <span id="username"></span> <span class="red-dot"></span></h2>
+                            <h2 id="chat-with-user">Chat with <span id="username">{% if my.frnd and my.frnd.username %}
+                                {{ my.frnd.username }}
+                            {% else %}
+                                Select a friend to start chatting
+                            {% endif %}</span> <span class="red-dot"></span></h2>
                         </a>
                     </div>
                 </div>
-            
-                <!-- Emoji sections -->
                 <div class="chat-messages">
-                    {% for chat in chats %}
-                    {% if chat.user == request.user %}
-                        <div class="chat-card">
+                    {% if chats %}
+                        {% for chat in chats %}
+                            {% if chat.user == request.user %}
+                                <div class="chat-card">
+                                    <p>{{ chat.msg }}</p>
+                                    {% if chat.attachment %}
+                                    {% with chat.attachment.url|lower as attachment_url %}
+                                        {% if attachment_url|slice:"-4:" == ".jpg" or attachment_url|slice:"-4:" == ".png" or attachment_url|slice:"-4:" == ".gif" %}
+                                            <!-- Display image inline -->
+                                            <img src="{{ chat.attachment.url }}" alt="Image" style="max-width: 100%; height: auto;" />
+                                        {% elif attachment_url|slice:"-4:" == ".pdf" %}
+                                            <!-- Display PDF inline using iframe -->
+                                            <iframe src="{{ chat.attachment.url }}" width="100%" height="600px"></iframe>
+                                        {% elif attachment_url|slice:"-4:" == ".txt" %}
+                                            <!-- Display text file content -->
+                                            <iframe src="{{ chat.attachment.url }}" width="100%" height="300px"></iframe>
+                                        {% else %}
+                                            <!-- For other file types, keep the download link -->
+                                            <a href="{{ chat.attachment.url }}" target="_blank">Download Attachment</a>
+                                        {% endif %}
+                                    {% endwith %}
+                                    {% endif %}
+                                </div>
+                            {% else %}
+                                <div class="otherchat">
+                                    <p>{{ chat.msg }}</p>
+                                    {% if chat.attachment %}
+                                    {% with chat.attachment.url|lower as attachment_url %}
+                                        {% if attachment_url|slice:"-4:" == ".jpg" or attachment_url|slice:"-4:" == ".png" or attachment_url|slice:"-4:" == ".gif" %}
+                                            <!-- Display image inline -->
+                                            <img src="{{ chat.attachment.url }}" alt="Image" style="max-width: 100%; height: auto;" />
+                                        {% elif attachment_url|slice:"-4:" == ".pdf" %}
+                                            <!-- Display PDF inline using iframe -->
+                                            <iframe src="{{ chat.attachment.url }}" width="100%" height="600px"></iframe>
+                                        {% elif attachment_url|slice:"-4:" == ".txt" %}
+                                            <!-- Display text file content -->
+                                            <iframe src="{{ chat.attachment.url }}" width="100%" height="300px"></iframe>
+                                        {% else %}
+                                            <!-- For other file types, keep the download link -->
+                                            <a href="{{ chat.attachment.url }}" target="_blank">Download Attachment</a>
+                                        {% endif %}
+                                    {% endwith %}
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                        {% endfor %}
                     {% else %}
-                        <div class="otherchat">
+                        {% comment %} <p>No messages to display.</p> {% endcomment %}
                     {% endif %}
-                        <p>{{ chat.msg|safe }}</p>
-                        {% if chat.attachment %}
-                            {% with chat.attachment.url|lower as attachment_url %}
-                                {% if attachment_url|slice:"-4:" == ".jpg" or attachment_url|slice:"-4:" == ".png" or attachment_url|slice:"-4:" == ".gif" %}
-                                    <img src="{{ chat.attachment.url }}" alt="Image" style="max-width: 100%; height: auto;" />
-                                {% elif attachment_url|slice:"-4:" == ".pdf" %}
-                                    <iframe src="{{ chat.attachment.url }}" width="100%" height="600px"></iframe>
-                                {% elif attachment_url|slice:"-4:" == ".txt" %}
-                                    <iframe src="{{ chat.attachment.url }}" width="100%" height="300px"></iframe>
-                                {% else %}
-                                    <a href="{{ chat.attachment.url }}" target="_blank">Download Attachment</a>
-                                {% endif %}
-                            {% endwith %}
-                        {% endif %}
-                    </div>
-                {% endfor %}
-                </div>
+                </div> 
                 <!-- Input section for messages and attachments -->
                 <div class="input-section">
                     <textarea class="message-input" placeholder="Type your message..." id="chat-input"></textarea>
                     <input type="file" class="attachment-input" />
                     <button id="emoji-button">😀</button>
-                <script>
+                {% comment %} <script>
                     document.addEventListener("DOMContentLoaded", () => {
                         const picker = new EmojiButton();
                         const button = document.querySelector('#emoji-button');
@@ -456,7 +491,7 @@
                             picker.togglePicker(button); // Toggle the emoji picker on button click
                         });
                     });
-                </script>
+                </script> {% endcomment %}
                     <button class="mic-button" id="mic-button">🎤</button>
                     <button class="send-button" id="send-button">Send</button>
                 </div>
@@ -465,6 +500,18 @@
     </div>
     <a href="{% url 'logout' %}" class="btn btn-outline-info btn-sm">Logout</a>
     <script>
+// Assuming `chatUsername` is passed from the backend to the frontend (e.g., via a template or API call)
+document.addEventListener("DOMContentLoaded", function () {
+    // Replace with the actual username fetched from the server
+    const chatUsername = "John Doe"; // Example username
+    const usernameElement = document.getElementById("username");
+
+    if (usernameElement && chatUsername) {
+        usernameElement.textContent = chatUsername;
+    }
+});
+
+
         document.getElementById('profile-toggle').addEventListener('click', function() {
             var profileDetails = document.getElementById('profile-details');
             if (profileDetails.style.display === 'none') {
@@ -477,7 +524,7 @@
         document.addEventListener("DOMContentLoaded", function () {
             const sendButton = document.getElementById('send-button');
             const textarea = document.getElementById('chat-input');
-            const attachmentInput = document.querySelector(".attachment-input");
+            cont attachmentInput = document.querySelector(".attachment-input");
             const chatMessages = document.querySelector(".chat-messages");
             const micButton = document.getElementById('mic-button');
             const usernameDisplay = document.getElementById('username');
