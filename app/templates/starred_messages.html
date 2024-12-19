@@ -1,0 +1,14 @@
+
+{% block content %}
+<h2>Starred Messages</h2>
+<ul>
+    {% for message in starred_messages %}
+        <li>
+            <strong>{{ message.sender.username }}:</strong> {{ message.message }}
+            <small>{{ message.created_at|date:"M d, Y H:i" }}</small>
+        </li>
+    {% empty %}
+        <p>No starred messages.</p>
+    {% endfor %}
+</ul>
+{% endblock %}

@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@joeattardi/emoji-button@4.6.0/dist/index.min.css">
 
     <style>
+       
         /* Styling for the red dot */
         .red-dot {
             width: 10px;
@@ -83,14 +84,17 @@
 
         /* Styling for the chat content */
         .chat-content {
-            width: 80%;
+            width: 100%;
             background-color: #fff;
             padding: 5px;
+            display:inline-flex;
         }
+       
 
         /* Styling for the chat messages */
         .chat-messages {
-            height: 60vh;
+            height: 50vh;
+            width: 80%;
             overflow-y: auto;
             border: 1px solid #ccc;
             border-radius: 5px;
@@ -106,14 +110,16 @@
             display: flex;
             align-items: center;
             margin-top: 10px;
+            margin: 10px;
         }
         
         #message-input, .attachment-input {
-            flex: 1;
+            display: flex;
             border: 1px solid #ccc;
             border-radius: 5px;
             padding: 5px;
-            margin-right: 10px;
+            margin: 10px;
+          
         }
         .attachment-input{
             padding: 10px;
@@ -128,15 +134,17 @@
             font-size: 20px;
             cursor: pointer;
             margin-right: 5px;
+            margin: 10px;
         }
 
         .mic-button {
             font-size: 20px;
+            margin: 10px;
         }
         #chat-with-user{
             font-size: 30px;
             text-decoration: none;
-
+            padding: 20px;
             color: #319cb3 ;
         }
         .btn-outline-info{
@@ -153,7 +161,7 @@
         .chat-card {
             background-color: #e0e0e0;
             color: #000;
-            max-width: 60%;
+            max-width: 100%;
             padding: 10px;
             border-radius: 10px;
             margin: 10px;
@@ -165,7 +173,8 @@
         .otherchat {
             background-color: #007bff;
             color: #fff;
-            max-width: 60%;
+            max-width: 80%;
+            display: block;
             padding: 10px;
             border-radius: 10px;
             margin: 10px;
@@ -173,7 +182,7 @@
             word-wrap: break-word;
             float: left;
         }
-         ..sidebar  {
+         .sidebar  {
             border: 1px solid #ccc;
             padding: 15px;
             border-radius: 5px;
@@ -204,18 +213,22 @@
         } 
         /* Basic styles for the sidebar */
 /* Basic styles for the navbar */
-.navbar {
-    background-color: #9bd7e3 ;
+.navbar-main {
+    background-color: #07889B;
     color: white;
-    padding: 10px;
     display: flex;
+    padding: 8px;
     justify-content: space-between;
     align-items: center;
 }
+.navbar-main img {
+    border-radius: 20%;
+    
+}
 
-.navbar h2 {
+.navbar h3 {
     margin: 0;
-    font-size: 24px;
+    font-size: 15px;
 }
 
 /* Basic styles for the sidebar */
@@ -225,10 +238,9 @@
     top: 0;
     width: 250px;
     height: 100%;
-    background-color:#9bd7e3;
+    background-color:#EEAA7B;
     color: black;
-    transition: 0.3s;
-    padding-top: 20px;
+    transition: 0.3s;    
     z-index: 1000;
 }
 
@@ -261,7 +273,7 @@
 
 /* Close button (cross) in the sidebar */
 .close-btn {
-    background-color:  #9bd7e3;
+    background-color: #F7C331;
     color: white;
     border: none;
     font-size: 30px;
@@ -274,17 +286,18 @@
 
 /* Style for the toggle button (hamburger icon) in navbar */
 .sidebar-toggle-btn {
-    background-color: #333;
+    background-color: #F7882F;
     color: white;
     border: none;
     padding: 10px;
     font-size: 24px;
+    border-radius: 10px;
     cursor: pointer;
 }
 
 /* Add hover effect for both buttons */
 .sidebar-toggle-btn:hover, .close-btn:hover {
-    background-color: #444;
+    background-color: #F7C331;
 }
 
 .section {
@@ -296,26 +309,51 @@
 /* Group Chat Section */
 .groupchat-section {
     margin-top: 5px;
+    width: 100%;
+    margin: 20px;
+    
+   display:flex ;
+   
+}
+#profile-details{
+    margin-top: 5px;
+    width: auto;
+    margin: 5px;
+    background:none;
+    color: #000;
+   
+   
+}
+#profile-details{
+    margin-top: 5px;
+    width: auto;
+    margin: 5px;
+    background:none;
+    color: #000;
+   
+   
 }
 /* Buttons */
 .groupchat-section .btn {
-    background-color: #9bd7e3;
+    background-color: #F7882F;
     color: #fff;
     border: none;
+    padding: 3px;
+    margin: 10px;
     border-radius: 5px;
-    padding: 5px 10px;
-    font-size: 20px;
+    font-size: 15px;
     cursor: pointer;
-    margin-right: 5px;
+   
 }
 
 .groupchat-section .btn:hover {
-    background-color: #0056b3;
+    background-color: #F7C331;
 }
 #emoji-button {
     background: transparent;
     border: none;
     font-size: 24px;
+    margin: 20px;
     cursor: pointer;
 }
 .trigger {
@@ -325,6 +363,58 @@
     background: none;
     outline: none;
   }
+  .chat-container{
+    width: 100%;   
+    cursor: pointer;
+    padding: 0;
+    margin: 0;
+    display: flex;
+}
+
+.chat-list{
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    text-decoration: none;
+  height: auto;
+  border:2px solid #07889B ;
+    width:100%;
+    text-align: center;
+    font-size: 18px;
+    border-right: none;
+    
+}
+.chat-list a{
+    padding: 0;
+    margin: 0;
+    color: black;
+   
+    text-decoration: none;
+    
+    
+}
+.chat-list ul,li{
+    padding: 0;
+    margin: 0;
+    color: black;
+    height: auto;
+    list-style: none;
+    text-decoration: none;
+    border-bottom: 1px solid black;
+    
+}
+.meassage-section{
+    width: 100%;
+   display: block;   
+    
+}
+.chat-sidebar{
+    width: 35%;
+   display: block;   
+    border-right: 1px solid black;
+    margin: 30px;
+}
+
 </style>
 <!-- Add these to the <head> section of your template -->
     <link rel="stylesheet" href="https://unpkg.com/emoji-mart/css/emoji-mart.css">
@@ -333,8 +423,8 @@
 </head>
 <body>
     <div class="main">
-        <div class="navbar">
-            <h2>WeChat</h2>
+        <div class="navbar-main">
+            <h2> <img src='/media/logo.jpg'  width="50" height="50" border-radius="70%">WeChat</h2>
             <!-- Button to toggle the sidebar visibility (hamburger icon) -->
             <button id="sidebar-toggle" class="sidebar-toggle-btn">☰</button>
         </div>
@@ -350,17 +440,17 @@
                     </a>
                 </li>
                 <!-- Other sidebar items -->
-                <li><a href="#">Starred messages</a></li>
-                <li><a href="#">Archived chats</a></li>
-                <li><a href="#">Settings</a></li>
+                <li><a href="{% url 'starred-messages' %}">Starred messages</a></li>
+                <li><a href="{% url 'archived-chats' %}">Archived chats</a></li>
+                <li><a href="{% url 'settings' %}">Settings</a></li>
             </ul>
-        
+            
             <!-- Profile details (Initially hidden) -->
-            <div id="profile-details" style="display: none;">
+            <div id="profile-details" >
                 <h3>{{ user.username }}'s Profile</h3>
-                <img src="{{ user_profile.profile_picture.url }}" alt="Profile Picture" width="100" height="100">
-                <p><strong>Bio:</strong> {{ user_profile.bio|default:"No bio available" }}</p>
-                <p><strong>Location:</strong> {{ user_profile.location|default:"No location available" }}</p>
+                <img src="/media/user.png" alt="Profile Picture" width="100" height="100">
+                <p><strong>Bio:</strong> {{ user_profile.bio|default:"This is me :)" }}</p>
+                <p><strong>Location:</strong> {{ user_profile.location|default:"India" }}</p>
                 <a href="{% url 'profile' %}" class="btn btn-outline-primary btn-sm">Edit Profile</a>
             </div>
         </div>
@@ -384,43 +474,54 @@
         </script>
         
         </div>
-        <h2>User List</h2>
-        <div class="d-flex align-items-start chat-container">
-                <ul>
-                    <nav class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
-                        {% for frnd in frnds %}
-                        <li><h4>
-                        <a class="nav-link" href="/?user={{frnd.username}}" role="tab" aria-controls="v-pills-home" aria-selected="false" aria-setsize="20px">{{frnd.username}}</a>
-                    </h4></li>
-                        {% endfor %}
-                    </nav>
-                </ul>
-                </div>
-                    </div>
-                   <!-- GROUP CHAT CODE --> 
-                    <div class="groupchat-section">
-                        <h2>Group Chat</h2>
-                        <!-- Button to view group list -->
-                        <a href="{% url 'group_list' %}">
-                            <button class="btn">View Groups</button>
-                        </a><br>
-                        <br>
-                        <!-- Button to create a new group -->
-                        <a href="{% url 'create_group' %}">
-                            <button class="btn">Create a Group</button>
-                        </a>
-                    </div>
-                    <br>
+    <div class="chat-container-main">
+       
+        <div class=" chat-container">
+            
+               
+                    
 
             <div class="chat-content">
+                <div class="chat-sidebar">
+                <div class=" chat-list">
+                    <ul>
+                        <nav class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+                            {% for frnd in frnds %}
+                            <li><h4>
+                            <a class="nav-link" href="/?user={{frnd.username}}" role="tab" aria-controls="v-pills-home" aria-selected="false" aria-setsize="20px">{{frnd.username}}</a>
+                        </h4></li>
+                            {% endfor %}
+                        </nav>
+                    </ul>
+                </div>
+                    
+                       
+                       <!-- GROUP CHAT CODE --> 
+                       <h3>Group Chat</h3>
+                        <div class="groupchat-section">
+                            <!-- Button to view group list -->
+                            <div class="groupchat-section">
+                            <a href="{% url 'group_list' %}">
+                                <button class="btn">View Groups</button>
+                            </a><br>
+                            <br>
+                            <!-- Button to create a new group -->
+                            <a href="{% url 'create_group' %}">
+                                <button class="btn">Create a Group</button>
+                            </a>
+                        </div>
+                        </div>
+                    </div>
+        <div class="meassage-section">
                 <div class="navbar bg-body-tertiary">
+                    
                     <div class="container-fluid">
+                        
                         <a class="navbar-brand" href="#">
-                            <h2 id="chat-with-user">Chat with <span id="username">{% if my.frnd and my.frnd.username %}
-                                {{ my.frnd.username }}
+                            <h3 id="chat-with-user">Chat with <span id="username">{% if my.frnd and my.frnd.username %}  {{ my.frnd.username }}
                             {% else %}
                                 Select a friend to start chatting
-                            {% endif %}</span> <span class="red-dot"></span></h2>
+                            {% endif %}</span> <span class="red-dot"></span></h3>
                         </a>
                     </div>
                 </div>
@@ -505,6 +606,8 @@
                     <button class="send-button" id="send-button">Send</button>
                 </div>
             </div>
+            </div>
+        </div>
         </div>
     </div>
     <a href="{% url 'logout' %}" class="btn btn-outline-info btn-sm">Logout</a>

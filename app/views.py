@@ -274,3 +274,24 @@ def group_chat(request, group_id):
         GroupMessage.objects.create(group=group, sender=request.user, content=content)
     
     return render(request, 'group_chat.html', {'group': group, 'messages': messages})
+
+from django.db.models import Q
+
+
+@login_required
+def starred_messages_view(request):
+    user = request.user  # Get the logged-in user
+    starred_messages = Message.objects.filter(Q(sender=user) | Q(user=user), is_starred=True)
+    return render(request, "starred_messages.html", {"starred_messages": starred_messages})
+
+@login_required
+def archived_chats_view(request):
+    user = request.user  # Get the logged-in user
+    archived_messages = Message.objects.filter(Q(sender=user) | Q(user=user), is_archived=True)
+    return render(request, "archived_chats.html", {"archived_messages": archived_messages})
+
+@login_required
+def settings_view(request):
+    user = request.user  # Get the logged-in user
+    # Settings can be personalized or general for the user
+    return render(request, "settings.html", {})

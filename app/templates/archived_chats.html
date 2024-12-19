@@ -1,0 +1,13 @@
+{% block content %}
+<h2>Archived Chats</h2>
+<ul>
+    {% for message in archived_messages %}
+        <li>
+            <strong>{{ message.sender.username }}:</strong> {{ message.message }}
+            <small>{{ message.created_at|date:"M d, Y H:i" }}</small>
+        </li>
+    {% empty %}
+        <p>No archived chats.</p>
+    {% endfor %}
+</ul>
+{% endblock %}

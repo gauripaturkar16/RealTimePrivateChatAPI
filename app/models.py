@@ -30,12 +30,13 @@ class Message(models.Model):
     # Make sender field nullable for the migration
     user = models.ForeignKey(to=User, on_delete=models.CASCADE, related_name='received_messages')
     sender = models.ForeignKey(to=User, on_delete=models.CASCADE, related_name='sent_messages', null=True)  # Allow null
-    
     msg = models.TextField()
     attachment = models.FileField(upload_to='attachments/', null=True, blank=True)
     text = models.TextField(blank=True, null=True)
     audio_file = models.FileField(upload_to='audio/', blank=True, null=True)
     timestamp = models.DateTimeField(auto_now_add=True)
+    is_starred = models.BooleanField(default=False)  # For starred messages
+    is_archived = models.BooleanField(default=False)  # For archived chats
 
     def __str__(self):
         return f'Message from {self.sender.username} at {self.timestamp}'
