@@ -49,6 +49,23 @@ def profile_view(request):
 
     return render(request, 'profile.html', {'form': form, 'user_profile': user_profile})
 
+from .form import ProfileEditForm
+
+
+@login_required
+def edit_profile_view(request):
+    # Get or create the user's profile
+    profile, created = UProfile.objects.get_or_create(user=request.user)
+
+    if request.method == 'POST':
+        form = ProfileEditForm(request.POST, request.FILES, instance=profile)
+        if form.is_valid():
+            form.save()
+            return redirect('profile')  # Replace 'profile' with the name of your profile view URL
+    else:
+        form = ProfileEditForm(instance=profile)
+
+    return render(request, 'edit_profile.html', {'form': form})
 # def send_message(request):
 #     if request.method == 'POST':
 #         form = MessageForm(request.POST, request.FILES)

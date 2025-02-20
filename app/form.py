@@ -1,6 +1,7 @@
 # chatapp/forms.py
 from django import forms
-from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
+from django.contrib.auth.models import User
 
 from .models import Message, UProfile
 
@@ -10,7 +11,11 @@ class UserProfileForm(forms.ModelForm):
     class Meta:
         model = UProfile
         fields = ['profile_picture', 'bio', 'location']
-
+        
+class ProfileEditForm(forms.ModelForm):
+    class Meta:
+        model = UProfile
+        fields = ['bio', 'profile_picture']
 
 class MessageForm(forms.ModelForm):
     class Meta:
@@ -20,11 +25,6 @@ class MessageForm(forms.ModelForm):
 class ChatLoginForm(AuthenticationForm):
     username = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Username'}))
     password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Password'}))
-
-from django import forms
-from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth.models import User
-
 
 class RegisterForm(UserCreationForm):
     email = forms.EmailField(required=True, widget=forms.EmailInput(attrs={

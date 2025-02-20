@@ -10,10 +10,11 @@
             padding: 0;
         }
         .form-container {
-            max-width: 500px;
+            max-width: 1200px;
             margin: 0 auto;
             margin-top: 50px;
             padding: 20px;
+            display: flex;
             border: 1px solid #ddd;
             border-radius: 5px;
         }
@@ -158,6 +159,21 @@
 .section h2 {
     margin-bottom: 10px;
 } 
+.form-container-right{
+    width: 50%;
+   
+}
+.form-container-left{
+    width: 50%;
+    margin-top: 30px;
+    margin-right: 20px;
+   
+}
+.form-container img{
+    
+    width: 600px;
+    height: 500px;
+}
 
     </style>
 </head>
@@ -216,8 +232,13 @@
         </div>
 
     <div class="form-container">
+        <div class="form-container-left">
+            <img src="https://img.freepik.com/premium-vector/group-chat-messaging_225067-33.jpg?w=360"> 
+            </div>
+            <div class="form-container-right">
         <h1>Create Group</h1>
         <form method="POST">
+
             {% csrf_token %}
             <label for="name">Group Name:</label>
             <input type="text" name="name" id="name" required>
@@ -237,6 +258,7 @@
                 <button class="create-group-btn">Cancel</button>
             </a>
         </form>
+    </div>
     </div>
 </body>
 </html>

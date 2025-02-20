@@ -1,5 +1,53 @@
-{% block content %}
-<h2>Settings</h2>
+
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Edit Profile</title>
+        <style>
+            body{
+                
+                background-color:#9bd7e3 ;
+                
+            }
+.container{
+    margin-top: 100px;
+    width: 600px;
+    padding: 20px;
+    border-color: black;
+    
+    border: 1px solid black ;
+    border-radius: 10px;
+    font-size: 22px;
+    background-color: white;
+    
+}.container ul,li{
+    text-decoration: none;
+   
+    
+}
+.container a{
+    text-decoration: none;
+    color: black;
+   
+    
+}
+.container h2{
+    
+    
+    color:#07889B  ;
+    
+    
+}
+
+</style>
+</head>
+<body>
+    <div class="container">
+        {% block content %}
+        <h2 color='pink'>Settings</h2>
 <p>Here you can manage your account settings and preferences.</p>
 <ul>
     <li><a href="{% url 'profile' %}">Edit Profile</a></li>
@@ -7,3 +55,6 @@
     <li><a href="#">Privacy Settings</a></li>
 </ul>
 {% endblock %}
+</div>
+</body>
+</html>
